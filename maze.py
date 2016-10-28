@@ -3,6 +3,7 @@ import random
 
 class Maze:
     COLOR_BLACK = (0, 0, 0)
+    COLOR_RED = (255, 0, 0)
     COLOR_WHITE = (255, 255, 255)
 
     def __init__(self, grid_width, grid_height, cell_width):
@@ -88,12 +89,16 @@ class Maze:
 
         return x, y
 
-    def remove_wall(self, cell_a, cell_b):
+    def remove_wall(self, cell_a, cell_b, color=None):
+        if color is None:
+            color = self.foreground_color
         wall_pos = self.get_wall_image_pos(cell_a, cell_b)
-        self.fill(wall_pos, (self.cell_width,) * 2, self.foreground_color)
+        self.fill(wall_pos, (self.cell_width,) * 2, color)
 
-    def fill_cell(self, cell):
-        self.fill(self.get_cell_image_pos(cell), (self.cell_width,) * 2, self.foreground_color)
+    def fill_cell(self, cell, color=None):
+        if color is None:
+            color = self.foreground_color
+        self.fill(self.get_cell_image_pos(cell), (self.cell_width,) * 2, color)
 
     def create_maze(self):
         grid_width = self.grid_width
@@ -111,14 +116,17 @@ class Maze:
         while len(stack) > 0:
             current_cell = stack[-1]
             self.visited.add(current_cell)
-            self.fill_cell(current_cell)
+            self.fill_cell(current_cell, self.COLOR_RED)
             next_cell = self.choose_unv_neighbor(current_cell)
 
             if next_cell:
                 stack.append(next_cell)
-                self.remove_wall(current_cell, next_cell)
+                self.remove_wall(current_cell, next_cell, self.COLOR_RED)
             else:
+                self.fill_cell(current_cell)
                 stack.pop()
+                if len(stack) > 0:
+                    self.remove_wall(current_cell, stack[-1])
 
             if callable(self.on_draw):
                 self.on_draw()

@@ -1,8 +1,8 @@
 from tkinter import Tk, Label
 from maze import Maze
 
-WIDTH = 200
-HEIGHT = 200
+WIDTH = 100
+HEIGHT = 100
 CELL_WIDTH = 2
 
 def main():
