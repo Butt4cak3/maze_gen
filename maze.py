@@ -12,6 +12,7 @@ class Maze:
         self.background_color = self.COLOR_BLACK
         self.foreground_color = self.COLOR_WHITE
         self.start_pos = (0, 0)
+        self.on_draw = None
         self.create_image()
         pass
 
