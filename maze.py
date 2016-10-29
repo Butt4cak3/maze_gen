@@ -100,33 +100,40 @@ class Maze:
             color = self.foreground_color
         self.fill(self.get_cell_image_pos(cell), (self.cell_width,) * 2, color)
 
-    def create_maze(self):
+    def prepare(self):
+        self.fill_background()
+        self.visited = set()
+        self.stack = [ self.start_pos ]
+
+    def step(self):
+        if len(self.stack) == 0:
+            return False
+
         grid_width = self.grid_width
         grid_height = self.grid_height
         cell_width = self.cell_width
 
-        width = self.get_image_width()
-        height = self.get_image_height()
+        current_cell = self.stack[-1]
+        self.visited.add(current_cell)
+        self.fill_cell(current_cell, self.COLOR_RED)
+        next_cell = self.choose_unv_neighbor(current_cell)
 
-        self.fill_background()
+        if next_cell:
+            self.stack.append(next_cell)
+            self.remove_wall(current_cell, next_cell, self.COLOR_RED)
+        else:
+            self.fill_cell(current_cell)
+            self.stack.pop()
+            if len(self.stack) > 0:
+                self.remove_wall(current_cell, self.stack[-1])
 
-        self.visited = set()
-        stack = [ self.start_pos ]
+        if callable(self.on_draw):
+            self.on_draw()
 
-        while len(stack) > 0:
-            current_cell = stack[-1]
-            self.visited.add(current_cell)
-            self.fill_cell(current_cell, self.COLOR_RED)
-            next_cell = self.choose_unv_neighbor(current_cell)
+        return True
 
-            if next_cell:
-                stack.append(next_cell)
-                self.remove_wall(current_cell, next_cell, self.COLOR_RED)
-            else:
-                self.fill_cell(current_cell)
-                stack.pop()
-                if len(stack) > 0:
-                    self.remove_wall(current_cell, stack[-1])
+    def create_maze(self):
+        self.prepare()
 
-            if callable(self.on_draw):
-                self.on_draw()
+        while self.step():
+            pass
